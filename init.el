@@ -141,4 +141,5 @@
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
 
+;; Some settings
 (require 'my-misc)
