@@ -143,3 +143,12 @@
 
 ;; Some settings
 (require 'my-misc)
+(global-set-key [f11] 'toggle-fullscreen)
+(global-set-key (kbd "M-S-<down>") 'move-line-down)
+(global-set-key (kbd "M-S-<up>") 'move-line-up)
+
+;; Zoom frame
+(require 'zoom-frm)
+(global-set-key (kbd "C-x C-+") 'zoom-in)
+(global-set-key (kbd "C-x C--") 'zoom-out)
+(global-set-key (kbd "C-x C-0") 'zoom-frm-unzoom)
