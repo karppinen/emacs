@@ -27,17 +27,16 @@
 ;;(setq custom-file (expand-file-name "custom.el" dotfiles-dir))
 ;;(load custom-file)
 
-;; Load some stuff instantly on startup
-(require 'custom-init-file)
+;; (require 'custom-init-file)
 (require 'appearance)
 (require 'sane-defaults)
 
 ;; Require and load a nice color-theme
-;; (require 'color-theme)
-;; (eval-after-load "color-theme"
-;;  '(progn
-;;     (color-theme-initialize)
-;;     (color-theme-hober)))
+(require 'color-theme)
+(eval-after-load "color-theme"
+  '(progn
+     (color-theme-initialize)
+     (color-theme-hober)))
 
 ;; Load modes when idle
 ;; Collaboration
@@ -100,6 +99,7 @@
 (require 'zencoding-mode)
 (add-hook 'sgml-mode-hook 'zencoding-mode)
 
+;; Ido mode
 (require 'ido)
 (ido-mode t)
 (setq ido-enable-prefix nil
