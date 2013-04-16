@@ -3,6 +3,14 @@
 (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
 (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
 
+;; Append /usr/local/bin to make emacs find aspell on a mac.
+(setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
+(setq exec-path (append exec-path '("/usr/local/bin")))
+
+;; Append /usr/texbin/pdflatex to make emacs find pdflatex on a mac.
+(setenv "PATH" (concat (getenv "PATH") ":/usr/texbin"))
+(setq exec-path (append exec-path '("/usr/texbin")))
+
 ;; Set path to .emacs.d
 (setq dotfiles-dir (file-name-directory
                     (or (buffer-file-name) load-file-name)))
@@ -68,7 +76,7 @@
 
 ;; Ace jump mode
 (require 'ace-jump-mode)
-(define-key global-map (kbd "C-c C-s") 'ace-jump-mode)
+(define-key global-map (kbd "M-s") 'ace-jump-mode)
 
 ;; Browse kill ring
 (require 'browse-kill-ring)
@@ -152,3 +160,39 @@
 (global-set-key (kbd "C-x C-+") 'zoom-in)
 (global-set-key (kbd "C-x C--") 'zoom-out)
 (global-set-key (kbd "C-x C-0") 'zoom-frm-unzoom)
+
+;; Mac fix: move Meta-key to 'cmd'
+(if (boundp 'ns-command-modifier)
+    (setq ns-command-modifier 'meta))
+(if (boundp 'ns-option-modifier)
+    (setq ns-option-modifier nil))
+
+;; Easy references in orgmode
+(defun org-mode-reftex-setup ()
+(load-library "reftex")
+(and (buffer-file-name)
+(file-exists-p (buffer-file-name))
+(reftex-parse-all))
+(define-key org-mode-map (kbd "C-c )") 'reftex-citation)
+)
+(add-hook 'org-mode-hook 'org-mode-reftex-setup)
+
+;; Org export to latex command
+;; (setq org-latex-to-pdf-process (list "latexmk -pdf -f %f"))
+;; (setq org-latex-to-pdf-process '("pdflatex %f && bibtex %b && pdflatex %f && pdflatex %f"))
+(setq org-latex-to-pdf-process '("pdflatex -interaction nonstopmode -output-directory %o %f" "bibtex report" "pdflatex -interaction nonstopmode -output-directory %o %f" "pdflatex -interaction nonstopmode -output-directory %o %f"))
+
+(setq org-export-pdf-remove-logfiles nil)
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(org-export-latex-classes (quote (("article" "\\documentclass[11pt]{article}" ("\\section{%s}" . "\\section*{%s}") ("\\subsection{%s}" . "\\subsection*{%s}") ("\\subsubsection{%s}" . "\\subsubsection*{%s}") ("\\paragraph{%s}" . "\\paragraph*{%s}") ("\\subparagraph{%s}" . "\\subparagraph*{%s}")) ("report" "\\documentclass[11pt]{report}" ("\\part{%s}" . "\\part*{%s}") ("\\chapter{%s}" . "\\chapter*{%s}") ("\\section{%s}" . "\\section*{%s}") ("\\subsection{%s}" . "\\subsection*{%s}") ("\\subsubsection{%s}" . "\\subsubsection*{%s}")) ("book" "\\documentclass[11pt]{book}" ("\\part{%s}" . "\\part*{%s}") ("\\chapter{%s}" . "\\chapter*{%s}") ("\\section{%s}" . "\\section*{%s}") ("\\subsection{%s}" . "\\subsection*{%s}") ("\\subsubsection{%s}" . "\\subsubsection*{%s}")) ("beamer" "\\documentclass{beamer}" org-beamer-sectioning) ("exjobb" "\\documentclass[11pt]{report}" ("\\chapter{%s}" . "\\chapter*{%s}") ("\\section{%s}" . "\\section*{%s}") ("\\subsection{%s}" . "\\subsection*{%s}") ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
