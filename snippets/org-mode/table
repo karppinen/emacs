@@ -3,7 +3,7 @@
 # key: table
 # --
 #+CAPTION: $1
-#+LABEL: fig:$2
+#+LABEL: tbl:$2
 #+ATTR_LaTeX:
 | $0  |   |   |   |   |
 |---+---+---+---+---|
