@@ -2,7 +2,17 @@
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(("init.el"
+(("adgateway-adcontainer.js"
+ (filename . "~/Desktop/javascript-adg/newformats-branch/adgateway-adcontainer.js")
+ (front-context-string . "\n               ")
+ (rear-context-string . " twopart expand.")
+ (position . 35596))
+("test"
+ (filename . "~/Desktop/javascript-adg/newformats-branch/adgateway-namespace.js")
+ (front-context-string . "        return f")
+ (rear-context-string . "or to host app?\n")
+ (position . 3203))
+("init.el"
  (filename . "~/.emacs.d/init.el")
  (front-context-string)
  (rear-context-string . " 'disabled nil)\n")
