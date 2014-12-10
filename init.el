@@ -3,6 +3,14 @@
 (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
 (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
 
+;; Append /usr/local/bin to make emacs find aspell on a mac.
+(setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
+(setq exec-path (append exec-path '("/usr/local/bin")))
+
+;; Append /usr/texbin/pdflatex to make emacs find pdflatex on a mac.
+(setenv "PATH" (concat (getenv "PATH") ":/usr/texbin"))
+(setq exec-path (append exec-path '("/usr/texbin")))
+
 ;; Set path to .emacs.d
 (setq dotfiles-dir (file-name-directory
                     (or (buffer-file-name) load-file-name)))
@@ -79,7 +87,7 @@
 
 ;; Ace jump mode
 (require 'ace-jump-mode)
-(define-key global-map (kbd "C-c C-s") 'ace-jump-mode)
+(define-key global-map (kbd "M-s") 'ace-jump-mode)
 
 ;; Browse kill ring
 (require 'browse-kill-ring)
@@ -156,7 +164,7 @@
 
 ;; Buffer functions
 (require 'buffer-defuns)
-(add-hook 'before-save-hook 'cleanup-buffer-safe)
+;; (add-hook 'before-save-hook 'cleanup-buffer-safe)
 (global-set-key (kbd "C-c C-b") 'cleanup-buffer)
 (global-set-key (kbd "C-c C-n") 'create-scratch-buffer)
 (put 'upcase-region 'disabled nil)
@@ -176,15 +184,95 @@
 
 ;; graphviz-dot-mode
 (require 'graphviz-dot-mode)
+
+;; Mac fix: move Meta-key to 'cmd'
+(if (boundp 'ns-command-modifier)
+    (setq ns-command-modifier 'meta))
+(if (boundp 'ns-option-modifier)
+    (setq ns-option-modifier nil))
+
+;; Easy references in orgmode
+(defun org-mode-reftex-setup ()
+  (load-library "reftex")
+  (and (buffer-file-name)
+       (file-exists-p (buffer-file-name))
+       (reftex-parse-all))
+  (define-key org-mode-map (kbd "C-c )") 'reftex-citation))
+(add-hook 'org-mode-hook 'org-mode-reftex-setup)
+(add-hook 'org-mode-hook 'auto-fill-mode)
+
+;; Binding for fill-region
+(global-set-key (kbd "C-c f") 'fill-region)
+
+;; Org export to latex command
+;; (setq org-latex-to-pdf-process (list "latexmk -pdf -f %f"))
+;; (setq org-latex-to-pdf-process '("pdflatex %f && bibtex %b && pdflatex %f && pdflatex %f"))
+;; HARD CODED FILENAME FOR BIBTEX == NOT GOOD!
+(setq org-latex-to-pdf-process '("pdflatex -interaction nonstopmode -output-directory %o %f" "bibtex report" "pdflatex -interaction nonstopmode -output-directory %o %f" "pdflatex -interaction nonstopmode -output-directory %o %f"))
+(setq org-export-pdf-remove-logfiles nil)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(send-mail-function (quote smtpmail-send-it)))
+ '(send-mail-function (quote smtpmail-send-it))
+ '(org-export-latex-classes (quote (("article" "\\documentclass[11pt]{article}" ("\\section{%s}" . "\\section*{%s}") ("\\subsection{%s}" . "\\subsection*{%s}") ("\\subsubsection{%s}" . "\\subsubsection*{%s}") ("\\paragraph{%s}" . "\\paragraph*{%s}") ("\\subparagraph{%s}" . "\\subparagraph*{%s}")) ("report" "\\documentclass[11pt]{report}" ("\\part{%s}" . "\\part*{%s}") ("\\chapter{%s}" . "\\chapter*{%s}") ("\\section{%s}" . "\\section*{%s}") ("\\subsection{%s}" . "\\subsection*{%s}") ("\\subsubsection{%s}" . "\\subsubsection*{%s}")) ("book" "\\documentclass[11pt]{book}" ("\\part{%s}" . "\\part*{%s}") ("\\chapter{%s}" . "\\chapter*{%s}") ("\\section{%s}" . "\\section*{%s}") ("\\subsection{%s}" . "\\subsection*{%s}") ("\\subsubsection{%s}" . "\\subsubsection*{%s}")) ("beamer" "\\documentclass{beamer}" org-beamer-sectioning) ("exjobb" "\\documentclass[11pt]{report}" ("\\chapter{%s}" . "\\chapter*{%s}") ("\\section{%s}" . "\\section*{%s}") ("\\subsection*{%s}" . "\\subsection*{%s}") ("\\subsubsection*{%s}" . "\\subsubsection*{%s}")))))
+ '(tab-stop-list (quote (4 8 16 24 32 40 48 56 64 72 80 88 96 104 112 120))))
+
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
+;; fix some org-mode + yasnippet conflicts:
+(defun yas/org-very-safe-expand ()
+  (let ((yas/fallback-behavior 'return-nil)) (yas/expand)))
+
+(add-hook 'org-mode-hook
+          (lambda ()
+            (make-variable-buffer-local 'yas/trigger-key)
+            (setq yas/trigger-key [tab])
+            (add-to-list 'org-tab-first-hook 'yas/org-very-safe-expand)
+            (define-key yas/keymap [tab] 'yas/next-field)))
+
+;; Keep region when undoing in region
+(defadvice undo-tree-undo (around keep-region activate)
+  (if (use-region-p)
+      (let ((m (set-marker (make-marker) (mark)))
+            (p (set-marker (make-marker) (point))))
+        ad-do-it
+        (goto-char p)
+        (set-mark m)
+        (set-marker p nil)
+        (set-marker m nil))
+    ad-do-it))
+
+;; Markdown mode
+(require 'markdown-mode)
+(add-to-list 'auto-mode-alist '("\\.text\\'" . markdown-mode))
+(add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
+(add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
+
+;; Web mode
+(require 'web-mode)
+(add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.jsp\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.php\\'" . web-mode))
+
+(setq web-mode-engines-alist
+      '(("php"    . "\\.phtml\\'")
+        ("php"    . "\\.php\\."))
+)
+
+;; Tab width 4 !
+(setq tab-width 4)
+(setq default-tab-width 4)
+>>>>>>> 60a7d220b5ca5796624e5c4eecbba6486cf36ae8

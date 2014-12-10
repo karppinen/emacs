@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: begin
+# key: begin
+# --
+#+LATEX: \begin{$1}
+$0
+#+LATEX: \end{$1}

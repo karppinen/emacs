@@ -19,6 +19,10 @@
 ;; Highlight matching parentheses when the point is on them.
 (show-paren-mode 1)
 
+(setq-default cursor-type 'box)
+
+(set-frame-font "-apple-DejaVu_Sans_Mono-medium-normal-normal-*-12-*-*-*-m-0-iso10646-1")
+
 (when window-system
   (setq frame-title-format '(buffer-file-name "%f" ("%b")))
   (blink-cursor-mode -1))
