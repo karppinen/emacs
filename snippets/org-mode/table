@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: table
+# key: table
+# --
+#+CAPTION: $1
+#+LABEL: $2
+#+ATTR_LaTeX: align=$3
+| $0  |   |   |   |   |
+|---+---+---+---+---|
+|   |   |   |   |   |

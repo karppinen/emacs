@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: figure
+# key: figure
+# --
+#+CAPTION: $1
+#+LABEL: $2
+#+ATTR_LaTeX: width=$3\textwidth placement=[!h]
+[[$4]]

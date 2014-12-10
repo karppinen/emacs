@@ -23,6 +23,17 @@
 (setq backup-directory-alist `(("." . ,(expand-file-name
                                         (concat dotfiles-dir "backups")))))
 
+
+;; Confirm exit
+(defun confirm-exit-emacs ()
+        "ask for confirmation before exiting emacs"
+        (interactive)
+        (if (yes-or-no-p "Are you sure you want to exit? ")
+                (save-buffers-kill-emacs)))
+
+(global-unset-key "\C-x\C-c")
+(global-set-key "\C-x\C-c" 'confirm-exit-emacs)
+
 ;; Keep emacs Custom-settings in separate file
 ;;(setq custom-file (expand-file-name "custom.el" dotfiles-dir))
 ;;(load custom-file)
@@ -94,6 +105,16 @@
 (require 'yasnippet)
 (setq yas/snippet-dirs "~/.emacs.d/snippets")
 (yas/global-mode 1)
+;; fix some org-mode + yasnippet conflicts:
+(defun yas/org-very-safe-expand ()
+  (let ((yas/fallback-behavior 'return-nil)) (yas/expand)))
+
+(add-hook 'org-mode-hook
+          (lambda ()
+            (make-variable-buffer-local 'yas/trigger-key)
+            (setq yas/trigger-key [tab])
+            (add-to-list 'org-tab-first-hook 'yas/org-very-safe-expand)
+            (define-key yas/keymap [tab] 'yas/next-field)))
 
 ;; Zencoding
 (require 'zencoding-mode)
@@ -152,3 +173,18 @@
 (global-set-key (kbd "C-x C-+") 'zoom-in)
 (global-set-key (kbd "C-x C--") 'zoom-out)
 (global-set-key (kbd "C-x C-0") 'zoom-frm-unzoom)
+
+;; graphviz-dot-mode
+(require 'graphviz-dot-mode)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(send-mail-function (quote smtpmail-send-it)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
